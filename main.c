@@ -2,56 +2,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-//list all the files in the directory
-int listFile(char * path) {
-  DIR* dir;
-  struct dirent* entry;
-  dir = opendir(path);
-  printf("Files\n");
-  if(dir!=NULL)
-    {
-        while((entry=readdir(dir))!=NULL){
-            printf("%s \n", entry->d_name);
-            printf("%d \n", entry->d_type);
-          }
-    }
-
-  closedir(dir);
-  printf("=====================================\n");
-  return 0;
-}
-
-//specify which files are directories (if any)
-int listDirec(char * path) {
-  DIR* dir;
-  struct dirent* entry;
-  dir = opendir(path);
-
-  int size, numdir;
-  printf("Directories\n");
-  if(dir!=NULL)
-    {
-        while((entry=readdir(dir))!=NULL){
-            size++;
-            if (entry->d_type == 4) {
-              printf("%s \n", entry->d_name);
-              numdir++;
-            }
-          }
-    }
-  closedir(dir);
-  if (!size)
-    printf("No directories found.");
-
-  printf("%d\n", size);
-  printf("=====================================\n");
-  return 0;
-}
 
 char * makePath(char* s1, char* s2){
   int size = strlen(s1)+strlen(s2)+2;
@@ -62,6 +18,83 @@ char * makePath(char* s1, char* s2){
   //free(string);
   return string;
 }
+
+char * type(int x){
+  if(x == DT_DIR){
+    return "DIR";
+  }else if(x == DT_REG){
+    return "REG";
+  }else if(x == DT_FIFO){
+    return "pipe/FIFO";
+  }else if(x == DT_SOCK){
+    return "SOCK";
+  }else if(x == DT_CHR){
+    return "CHR";
+  }else if(x == DT_BLK){
+    return "BLK";
+  }else if(x == DT_LNK){
+    return "LNK";
+  }
+  return "UNKNOWN";
+ }
+
+//list all the files in the directory
+int listFile(char * path) {
+  DIR* dir;
+  struct dirent* entry;
+  dir = opendir(path);
+  printf("==============================================================================\n");
+  printf("Regular files:\n");
+  if(dir!=NULL)
+    {
+        while((entry=readdir(dir))!=NULL){
+            printf("\t%s\n", entry->d_name);
+            printf("\t\t\ttype: %s\n", type(entry->d_type));
+            char * string = makePath(path, entry->d_name);
+
+            struct stat *buf = malloc(sizeof(struct stat));
+            stat(string, buf);
+            printf("\t\t\tsize: %lld\n", buf->st_size);
+            // printf("\t\t\tmode (permissions): %d\n", buf->st_mode);
+            char x[12];
+            strmode(buf->st_mode, x);
+            printf("\t\t\tmode (permissions): %s\n", x);
+            printf("\t\t\ttime of last access: %s\n", ctime(&(buf->st_atime)));
+            free(buf);
+          }
+    }
+
+  closedir(dir);
+  return 0;
+}
+
+//specify which files are directories (if any)
+int listDirec(char * path) {
+  DIR* dir;
+  struct dirent* entry;
+  dir = opendir(path);
+
+  int size, numdir;
+  printf("==============================================================================\n");
+  printf("Directories:\n");
+  if(dir!=NULL)
+    {
+        while((entry=readdir(dir))!=NULL){
+            size++;
+            if (entry->d_type == 4) {
+              printf("\t%s \n", entry->d_name);
+              numdir++;
+            }
+          }
+    }
+  closedir(dir);
+  if (!size)
+    printf("No directories found.");
+
+  printf("\t\t\tsize: %d\n", size);
+  return 0;
+}
+
 //show the total size of all the regular files the directory
 int findSize(char * path) {
   DIR* dir;
@@ -143,24 +176,29 @@ int listAll(char * path, int loop) {
 
 int listAllW(char * path) {
   int a = listAll(path, 0);
-  printf("Statistics for directory: %s \n Total Directory Size: %d bytes \n", path, a);
+  printf("==============================================================================\n");
+  printf("Statistics for directory: %s \nTotal Directory Size: %d bytes \n", path, a);
 
   double b = a/1000.;
   double c = b/1000.;
   double d = c/1000.;
 
   char sz[100];
-  sprintf(sz, "File size: %d B = %e KB = %e MB = %e GB", a, b, c, d);
+  sprintf(sz, "\tFile size: %d B = %e KB = %e MB = %e GB", a, b, c, d);
   printf("%s\n", sz);
   //listAll(path, 0);
   return 0;
 }
 
 int main() {
-  listFile(".");
-  listDirec(".");
+  // listFile(".");
+  // listDirec(".");
+  // findSize("..");
+  // //listAll("..", 0);
+  // listAllW("..");
   findSize("..");
-  //listAll("..", 0);
   listAllW("..");
+  listDirec(".");
+  listFile(".");
   return 0;
 }
