@@ -191,6 +191,10 @@ int listAllW(char * path) {
 }
 
 int main(int argc, char *argv[]) {
+  // findSize("..");
+  // listAllW("..");
+  // listDirec(".");
+  // listFile(".");
   int x;
   for(x = 0; argc > 0; x++){
     findSize(argv[x]);
