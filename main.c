@@ -39,7 +39,6 @@ int listDirec(char * path) {
         while((entry=readdir(dir))!=NULL){
             size++;
             if (entry->d_type == 4) {
-
               printf("%s \n", entry->d_name);
               numdir++;
             }
@@ -51,19 +50,6 @@ int listDirec(char * path) {
 
   printf("%d\n", size);
   printf("=====================================\n");
-  /**
-  char * array[size];
-  printf("%d\n", numdir);
-  struct dirent* entry1;
-  dir = opendir(path);
-  if(dir!=NULL)
-    {
-        while((entry1=readdir(dir))!=NULL){
-          size++;
-          }
-    }
-  closedir(dir);
-  **/
   return 0;
 }
 
@@ -73,6 +59,7 @@ char * makePath(char* s1, char* s2){
   strcat(string, s1);
   strcat(string, "/");
   strcat(string, s2);
+  //free(string);
   return string;
 }
 //show the total size of all the regular files the directory
@@ -91,13 +78,10 @@ int findSize(char * path) {
         while((entry=readdir(dir))!=NULL){
             if (entry->d_type != 4) {
               char * string = makePath(path, entry->d_name);
-              //printf("%s\n", string);
               int x = stat(string, buf);
-              //printf("errno: %d\n", x);
-              //printf("%d \n", buf->st_size);
               size += buf->st_size;
               //printf("Mode (permissions): %d\n", buf->st_mode);
-              //printf("%s: %d\n",entry->d_name, size);
+
               free(string);
             }
           }
@@ -118,8 +102,7 @@ int listAll(char * path, int loop) {
   if(dir!=NULL)
     {
       //printf("%d\n", findSize(path) );
-      //size += findSize(path);
-      //printf("%d\n", size);
+      findSize(path);
         while((entry=readdir(dir))!=NULL){
             //size++;
 
@@ -140,8 +123,9 @@ int listAll(char * path, int loop) {
             else if (entry->d_type == 4) {
               char * string = makePath(path, entry->d_name);
               printf("|-- %s\n", entry->d_name);
-              size += listAll(string, loop + 1);
-
+              listAll(string, loop + 1);
+              size += findSize(string);
+              //printf("%d\n", size);
               //printf("=====================================\n");
 
             }
@@ -153,51 +137,21 @@ int listAll(char * path, int loop) {
 
     }
   closedir(dir);
-  return size;
-}
-/**
-int findSizeAll(char * path) {
-  DIR* dir;
-  struct dirent* entry;
-  dir = opendir(path);
-
-  struct stat *buf = malloc(sizeof(struct stat));
-
-  int size = 0;
-  //printf("size?\n");
-
-  if(dir!=NULL)
-    {
-        while((entry=readdir(dir))!=NULL){
-            if (entry->d_type != 4) {
-              char * string = makePath(path, entry->d_name);
-              //printf("%s\n", string);
-              int x = stat(string, buf);
-              //printf("errno: %d\n", x);
-              //printf("%d \n", buf->st_size);
-              size += buf->st_size;
-              //printf("%s: %d\n",entry->d_name, size);
-              free(string);
-            }
-            if (entry->d_type == 4) {
-              char * string = makePath(path, entry->d_name);
-              size += findSizeAll(string);
-              free(string);
-            }
-          }
-    }
-  free (buf);
   printf("%d\n", size);
-  closedir(dir);
   return size;
 }
-**/
+
+int listAllW(char * path) {
+  //printf("Statistics for directory: %s \n Total Directory Size: %d\n", path, listAll(path, 0));
+  //listAll(path, 0);
+  return listAll(path, 0);
+}
 
 int main() {
-  //listFile(".");
-  //listDirec(".");
+  listFile(".");
+  listDirec(".");
   findSize("..");
-  listAll("..", 0);
-  //findSizeAll("..");
+  //listAll("..", 0);
+  printf("%d\n", listAllW(".."));
   return 0;
 }
