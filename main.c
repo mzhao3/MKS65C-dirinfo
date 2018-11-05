@@ -190,15 +190,14 @@ int listAllW(char * path) {
   return 0;
 }
 
-int main() {
-  // listFile(".");
-  // listDirec(".");
-  // findSize("..");
-  // //listAll("..", 0);
-  // listAllW("..");
-  findSize("..");
-  listAllW("..");
-  listDirec(".");
-  listFile(".");
+int main(int argc, char *argv[]) {
+  int x;
+  for(x = 0; argc > 0; x++){
+    findSize(argv[x]);
+    listAllW(argv[x]);
+    listDirec(argv[x]);
+    listFile(argv[x]);
+    argc--;
+  }
   return 0;
 }

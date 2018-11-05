@@ -8,4 +8,4 @@ clean:
 	rm main main.o
 
 run:
-	./main
+	./main $(args)
