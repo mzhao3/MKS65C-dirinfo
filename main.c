@@ -54,9 +54,9 @@ int listDirec(char * path) {
 }
 
 char * makePath(char* s1, char* s2){
-  int size = strlen(s1)+strlen(s2)+1;
+  int size = strlen(s1)+strlen(s2)+2;
   char * string = calloc(sizeof(char), size);
-  strcat(string, s1);
+  strcpy(string, s1);
   strcat(string, "/");
   strcat(string, s2);
   //free(string);
@@ -137,14 +137,23 @@ int listAll(char * path, int loop) {
 
     }
   closedir(dir);
-  printf("%d\n", size);
+  //printf("%d\n", size);
   return size;
 }
 
 int listAllW(char * path) {
-  //printf("Statistics for directory: %s \n Total Directory Size: %d\n", path, listAll(path, 0));
+  int a = listAll(path, 0);
+  printf("Statistics for directory: %s \n Total Directory Size: %d bytes \n", path, a);
+
+  double b = a/1000.;
+  double c = b/1000.;
+  double d = c/1000.;
+
+  char sz[100];
+  sprintf(sz, "File size: %d B = %e KB = %e MB = %e GB", a, b, c, d);
+  printf("%s\n", sz);
   //listAll(path, 0);
-  return listAll(path, 0);
+  return 0;
 }
 
 int main() {
@@ -152,6 +161,6 @@ int main() {
   listDirec(".");
   findSize("..");
   //listAll("..", 0);
-  printf("%d\n", listAllW(".."));
+  listAllW("..");
   return 0;
 }
