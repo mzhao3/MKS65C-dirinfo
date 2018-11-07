@@ -190,18 +190,33 @@ int listAllW(char * path) {
   return 0;
 }
 
+int printer(char * path){
+  findSize(path);
+  listAllW(path);
+  listDirec(path);
+  listFile(path);
+  return 0;
+}
+
 int main(int argc, char *argv[]) {
-  // findSize("..");
-  // listAllW("..");
-  // listDirec(".");
-  // listFile(".");
-  int x;
-  for(x = 0; argc > 0; x++){
-    findSize(argv[x]);
-    listAllW(argv[x]);
-    listDirec(argv[x]);
-    listFile(argv[x]);
-    argc--;
+  char path[100];
+  if(argc == 1){
+    printf("Please enter a valid path.\n");
+    scanf("%s", path);
+  }else{
+    strcpy(path, argv[1]);
   }
+  printer(path);
+  // Attempted to do errno - issue: Seg faults
+  // int i = printer(path);
+  // if(i!=0){
+  //   int errnum = errno;
+  //   fprintf(stderr, "Value of errno: %d\n", errno);
+  //   perror("Error printed by perror");
+  //   fprintf(stderr, "Error: %s\n", strerror( errnum ));
+  //
+  //   printf("Please enter a valid path.\n");
+  //   scanf("%s", argv[1]);
+  // }
   return 0;
 }
